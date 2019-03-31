@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title></title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <script
+    type="text/javascript"
+    src="http://code.jquery.com/jquery-1.11.0.js"
+    
+  ></script>
+
+  <style id="compiled-css" type="text/css">
+      div.smallField
+{
+    margin: 10px;
+}
+
+div.wonField
+{
+    font-size: 120px;
+    font-weight: bold;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    position: absolute;
+    opacity: 0.5;
+}
+
+
+div.fieldElement {
+    width: 30px;
+    height: 30px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    border-radius: 10px;
+    margin: 5px;
+    font-size: 30px;
+    font-weight: bold;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    text-align: center;
+    background: #83F52C;
+    color: #FFF;
+    line-height: 30px;
+}
+
+div.fieldElement:hover {
+    opacity: 0.5;
+}
+  </style>
+
+
+  <!-- TODO: Missing CoffeeScript 2 -->
+
+  <script type="text/javascript">
+
+
+    
+var length = 3;
+
+var makeField = function () {
+
+    var temp = $(".bigField");
+    temp.append("<table><tbody></tbody></table>");
+    temp = temp.children().children();
+    for (var i = 0; i < length; i++)
+        temp.append("<tr></tr>");
+    temp = temp.children();
+    for (var i = 0; i < length; i++)
+        temp.append("<td><div class=\"smallField\"></div></td>");
+    temp = temp.children().children();
+    temp.append("<div class=\"wonField\"></div>");
+    temp.append("<table><tbody></tbody></table>");
+    temp = temp.children(":nth-child(2)").children();
+    for (var i = 0; i < length; i++)
+        temp.append("<tr></tr>");
+    temp = temp.children();
+    for (var i = 0; i < length; i++)
+        temp.append("<td><div class=\"fieldElement\"></div></td>");
+    $(".bigField").append("<span id=\"result\"></span>")
+}
+
+var getCellIndex = function (cell) {
+    var jqCell = $(cell);
+    var closestTd = jqCell.closest("td");
+    var closestTr = jqCell.closest("tr");
+    return {
+        row: closestTr.parent().children().index(closestTr),
+        column: closestTd.parent().children().index(closestTd)
+    }
+}
+var getElementOfTable = function (table, row, column) {
+    var jqTable = $(table);
+    return jqTable.find("tr:first").parent().children("tr").eq(row).find("td:first").parent().children("td").eq(column);
+}
+
+var smallFieldWinner = function (table) {
+    var fieldElements = [];
+    for (var i = 0; i < length; i++) {
+        fieldElements[i] = [];
+        for (var j = 0; j < length; j++)
+            fieldElements[i][j] = getElementOfTable(table, i, j).find(".fieldElement").first().text();
+    }
+    var flag = true;
+
+    for (var i = 0; i < length; i++)  //Check rows
+    {
+        if (fieldElements[i][0] != "") {
+            for (var j = 1; j < length; j++)
+                flag = flag && (fieldElements[i][0] == fieldElements[i][j])
+            if (flag === true)
+                return fieldElements[i][0];
+        }
+    }
+    flag = true;
+    for (var i = 0; i < length; i++) //Check columns
+    {
+        if (fieldElements[0][i] != "") {
+            for (var j = 1; j < length; j++)
+                flag = flag && (fieldElements[0][i] == fieldElements[j][i])
+            if (flag === true)
+                return fieldElements[0][i];
+        }
+    }
+    flag = true
+    if (fieldElements[0][0] != "") {
+        for (var i = 1; i < length; i++)
+            flag = flag && (fieldElements[0][0] == fieldElements[i][i])
+        if (flag === true)
+            return fieldElements[i][i];
+    }
+    flag = true
+    if (fieldElements[0][length - 1] != "") {
+        for (var i = 1; i < length; i++)
+            flag = flag && (fieldElements[0][length - 1] == fieldElements[i][(length - 1)-i])
+        if (flag === true)
+            return fieldElements[0][length - 1];
+    }
+
+    return "";
+}
+
+var isSmallFieldFull = function (table) {
+    var flag = true;
+    for (var i = 0; i < length && flag; i++) {
+        for (var j = 0; j < length; j++)
+            if (getElementOfTable(table, i, j).find(".fieldElement").first().text() == "") {
+                flag = false;
+                break;
+            }
+    }
+    return flag;
+}
+
+var bigFieldWinner = function (fieldElements) {
+    var flag = true;
+    for (var i = 0; i < length; i++)  //Check rows
+    {
+        if (fieldElements[i][0].cell != "") {
+            for (var j = 1; j < length; j++)
+                flag = flag && (fieldElements[i][0].cell == fieldElements[i][j].cell)
+            if (flag === true)
+                return fieldElements[i][0].cell;
+        }
+    }
+    flag = true;
+    for (var i = 0; i < length; i++) //Check columns
+    {
+        if (fieldElements[0][i].cell != "") {
+            for (var j = 1; j < length; j++)
+                flag = flag && (fieldElements[0][i].cell == fieldElements[j][i].cell)
+            if (flag === true)
+                return fieldElements[0][i].cell;
+        }
+    }
+    flag = true
+    if (fieldElements[0][0].cell != "") {
+        for (var i = 1; i < length; i++)
+            flag = flag && (fieldElements[0][0].cell == fieldElements[i][i].cell)
+        if (flag === true)
+            return fieldElements[i][i].cell;
+    }
+    flag = true
+    if (fieldElements[0][length - 1].cell != "") {
+        for (var i = 1; i < length; i++)
+            flag = flag && (fieldElements[0][length - 1].cell == fieldElements[i][(length - 1)-i].cell)
+        if (flag === true)
+            return fieldElements[0][length - 1].cell;
+    }
+    flag = true;
+    for (var i = 0; i < length && flag; i++) {
+        for (var j = 0; j < length; j++)
+            if (fieldElements[i][j].cell == "" && !fieldElements[0][length - 1].isFull)
+                flag = false;
+    }
+    return true;
+}
+
+var centerElement = function (element) {
+    jqElement = $(element);
+    var padding = Math.round((jqElement.parent().width() - jqElement.width()) / 2);
+    jqElement.css("padding-left", padding + "px");
+}
+
+
+$(document).ready(function () {
+    var counter = 0;
+    var lastClick;
+    var smallFields = [];
+    var play = true;
+    makeField();
+
+    for (var i = 0; i < length; i++) {
+        smallFields[i] = [];
+        for (var j = 0; j < length; j++) {
+            smallFields[i][j] = {
+                cell: "",
+                isFull: false
+            }
+        }
+    }
+
+    $(".fieldElement").click(function (event) {
+        if (play) {
+            var smallField = $(this).closest(".smallField");
+            var smallFieldIndex = getCellIndex(smallField);
+            if (event.target.innerHTML == "" && (counter == 0 || (lastClick.row == smallFieldIndex.row &&
+                lastClick.column == smallFieldIndex.column))) {
+                if (counter % 2 == 0)
+                    event.target.innerHTML = "X";
+                else
+                    event.target.innerHTML = "O";
+                counter++;
+                lastClick = getCellIndex(event.target);
+                if (!smallFields[smallFieldIndex.row][smallFieldIndex.column].isFull)
+                    smallFields[smallFieldIndex.row][smallFieldIndex.column].isFull = isSmallFieldFull(smallField);
+                if (smallFields[smallFieldIndex.row][smallFieldIndex.column].cell == "") {
+                    smallFields[smallFieldIndex.row][smallFieldIndex.column].cell = smallFieldWinner(smallField);
+                    if (smallFields[smallFieldIndex.row][smallFieldIndex.column].cell != "") {
+
+                        var wonField = smallField.children(".wonField");
+                        wonField.append(smallFields[smallFieldIndex.row][smallFieldIndex.column].cell);
+                        centerElement(wonField);
+                        var result = bigFieldWinner(smallFields);
+                        if (result == "X" || result == "O") {
+                            $("#result").append(result + " won!");
+                            play = false;
+                        }
+                        if (result == "full") {
+                            $("#result").append("All fields are full. " + event.target.innerHTML + " won!");
+                            play = false;
+                        }
+                    }
+                }
+
+                if (smallFields[lastClick.row][lastClick.column].isFull) {
+                    $("#result").append("Field is full. " + event.target.innerHTML + " won!");
+                    play = false;
+                }
+                $(".fieldElement").css("background", "#b20000");
+                getElementOfTable($(".bigField"), lastClick.row, lastClick.column).find(".fieldElement").css("background", "#83F52C");
+            }
+        }
+    });
+
+    $(".smallField").hover(function () {
+        $(this).children(".wonField").css("visibility", "hidden");
+    }, function () {
+        $(this).children(".wonField").css("visibility", "visible")
+    });
+
+    $("wonField").hover(function () {
+        $(this).css("visibility", "hidden");
+    }, function () {
+        $(this).css("visibility", "visible")
+    });
+});
+
+
+
+
+</script>
+
+</head>
+<body>
+    <div class="bigField">
+</div>
+
+</body>
+</html>
